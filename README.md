@@ -1,3 +1,5 @@
+$$\begin{readme}$$
+$$\begin{flushleft}$$
 # Audit Log Service
 
 ## $${\color{green}Purpose}$$
@@ -198,3 +200,6 @@ Deployment Considerations: Choose a suitable deployment strategy based on your i
 Containerization: Use Docker to package the microservice along with its dependencies, making it easier to deploy and manage across different environments.
 Orchestration: Utilize container orchestration platforms like Kubernetes to manage the deployment, scaling, and monitoring of the service.
 Load balancing: If the service experiences high traffic, consider using a load balancer to distribute requests across multiple instances of the service for improved performance and availability.
+
+$$\begin{flushleft}$$
+$$\end{readme}$$
