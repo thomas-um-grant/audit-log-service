@@ -86,18 +86,18 @@ To handle the write-intensive nature of the service, the following aspects are c
 
 ##### Authentication
 To use the API, the users first need to obtain a JWT token:
-```code
+```console
 curl -X POST -H "Content-Type: application/json" -d '{"username":"<USERNAME>", "password":"<PASSWORD>"}' http://localhost:5000/login
 ```
 ##### Event Submission
 To submit a new event, the users can use this command:
-```code
+```console
 curl -X POST -H "Content-Type: application/json" -H "Authorization: <JWT TOKEN>" -d '{"key1":"value1", "key2":"value2"}' http://localhost:5000/events
 ```
 
 ##### Event Querying
 To get all events from the db, the users can use this command:
-```code
+```console
 curl -X GET -H "Authorization: <jwt-token>" http://localhost:5000/events
 ```
 
@@ -127,7 +127,7 @@ Security Considerations:
 #### Authentication with JWT
 The JWT is signed using a secret key which is saved in a config file, alongside users.
 A route will be created to generate a token that can be used to make API calls.
-```code
+```python
 import jwt
 
 app.config['SECRET_KEY'] = config.SECRET_KEY
@@ -155,7 +155,7 @@ def login():
 
 #### Data Storage with MongoDB
 To create a NoSQL DB with MongoDB, the following implementation is used:
-```code
+```python
 from pymongo
 
 # Connect to the MongoDB server on port 27017
@@ -172,7 +172,7 @@ The events will be stored in the DB following a specific schema so we can optimi
 
 #### API Enpoints
 The Flask framework will be used for this project. The endpoints (event submissions and querying) will be structured as followed:
-```code
+```python
 from flask import Flask
 
 app = Flask(__name__)
