@@ -3,7 +3,7 @@
 ## $${\color{green}Purpose}$$
 The purpose of this service is to accept event data sent by other systems and provide an HTTP endpoint for querying recorded event data by field values.
 
-## <font style="color:green"> Background </font>
+## <code style="color : green">Background</code>
 This service is developed as part of the Canonical interview process to assess technical skills.
 
 ## <font style="color:green"> Requirements of the exersise </font>
