@@ -2,13 +2,13 @@ $$\begin{document}$$
 $$\begin{flushleft}$$
 # Audit Log Service
 
-## $${\color{green}Purpose}$$
+## Purpose
 The purpose of this service is to accept event data sent by other systems and provide an HTTP endpoint for querying recorded event data by field values.
 
-## <code style="color : green">Background</code>
+## Background
 This service is developed as part of the Canonical interview process to assess technical skills.
 
-## <font style="color:green"> Requirements of the exersise </font>
+## Requirements of the exersise
 Build an audit log service:
 
 The service will accept event data sent by other systems and provide an HTTP endpoint for querying recorded event data by field values.
@@ -26,9 +26,9 @@ The service should use authentication for the event submission and querying endp
 
 The microservice must be developed in Python or Go and run as an HTTP server. Try to use features available in the language of your choice and avoid extensive usage of frameworks or generated code. Feel free to use any data storage mechanisms that you find appropriate.
 
-## <font style="color:green"> Detailed design </font>
+## Detailed design
 
-#### <font style="color:blue"> Overall Architecture: </font>
+#### Overall Architecture:
 The audit log service will follow a microservices architecture, consisting of the following components:
 - **HTTP Server**: Handles incoming requests and routes them to the appropriate endpoints.
 - **Event Handler**: Responsible for receiving, processing, and storing event data.
@@ -50,24 +50,24 @@ The audit log service will follow a microservices architecture, consisting of th
 }
 ```
 
-#### <font style="color:blue"> Authentication </font>
+#### Authentication
 To secure the endpoints, we'll implement authentication using tokens. Each request to the service's endpoints should include an authentication token in the header. The token can be generated using the user authentication system JWT. I chose JWT over OAuth because we don't need to maintain the session state.
 
-#### <font style="color:blue"> Event Submission </font>
+#### Event Submission
 The service will expose an endpoint to receive event data from other systems. The endpoint will support HTTP POST requests. Here are the steps for event submission:
 - The request will contain the event data in JSON format.
 - The authentication middleware will validate the user's authentication token.
 - The event handler will parse the JSON payload and validate the event against the event schema.
 - The event will be stored in the database for later retrieval.
 
-#### <font style="color:blue"> Event Querying </font>
+#### Event Querying
 The service will provide an endpoint to query recorded event data based on field values. The endpoint will support HTTP GET requests with query parameters. Here are the steps for event querying:
 - The request will include query parameters specifying the field values to search for.
 - The authentication middleware will validate the user's authentication token.
 - The event handler will retrieve events from the database based on the provided query parameters.
 - The matching events will be returned as a response in JSON format.
 
-#### <font style="color:blue"> Data Storage </font>
+#### Data Storage
 For this specific service, the important requirements to take into considerations are:
 - The list of event types is open-ended, which means the structure of each event may vary.
 - The service is write-intensive.
@@ -75,44 +75,44 @@ For this specific service, the important requirements to take into consideration
 The first requirement indicates that a relational database might not be optimal. Both a NoSQL database or a Distributed File System architecture could be used, although I prefer a NoSQL database because I can perform validation and querying more easily without requiring additional tools or framework. 
 Hence, MongoDB will be used as the NoSQL database.
 
-#### <font style="color:blue"> Error Handling and Loggin </font>
+#### Error Handling and Loggin
 The system needs to include robust error handling mechanisms to handle exceptions, validate input data, and ensure continuity of the service. Proper logging will be implemented to track errors, debug information, and monitor the service's behavior. Ironically, we will log information regarding events occuring when the API is used so we can troubleshoot system errors.
 
-#### <font style="color:blue"> Scaling and Performance </font>
+#### Scaling and Performance
 To handle the write-intensive nature of the service, the following aspects are considered:
 - Using asynchronous processing: The event submission endpoint is decoupled from the actual event processing and storage. Events are processed and stored asynchronously to handle high loads without blocking the HTTP server.
 - Employing message queues: A message queue system (RabbitMQ) is integrated to handle event processing and decouple it from the HTTP server. This allows for better scalability and fault tolerance.
 - Optimizing the database: Appropriate indexing, sharding, or partitioning strategies are used to ensure efficient storage and retrieval of events.
 
-#### <font style="color:blue"> API Documentation </font>
+#### API Documentation
 
-##### <font style="color:orange"> Authentication </font>
+##### Authentication
 To use the API, the users first need to obtain a JWT token:
 ```code
 curl -X POST -H "Content-Type: application/json" -d '{"username":"<USERNAME>", "password":"<PASSWORD>"}' http://localhost:5000/login
 ```
-##### <font style="color:orange"> Event Submission </font>
+##### Event Submission
 To submit a new event, the users can use this command:
 ```code
 curl -X POST -H "Content-Type: application/json" -H "Authorization: <JWT TOKEN>" -d '{"key1":"value1", "key2":"value2"}' http://localhost:5000/events
 ```
 
-##### <font style="color:orange"> Event Querying </font>
+##### Event Querying
 To get all events from the db, the users can use this command:
 ```code
 curl -X GET -H "Authorization: <jwt-token>" http://localhost:5000/events
 ```
 
-##### <font style="color:orange"> Expected Request formats </font>
+##### Expected Request formats
 // TODO
-##### <font style="color:orange"> Expected Response formats </font>
+##### Expected Response formats
 // TODO
-##### <font style="color:orange"> Authentication Requirements </font>
+##### Authentication Requirements
 // TODO
-##### <font style="color:orange"> Examples of usage </font>
+##### Examples of usage
 // TODO
 
-#### <font style="color:blue"> Testing </font>
+#### Testing
 Comprehensive unit tests and integration tests will ensure the correctness and reliability of the service. 
 The pytest testing framework will automate the testing process.
 Monitoring and Metrics: 
@@ -124,9 +124,9 @@ Security Considerations:
 	- Follow the principle of least privilege for authentication and authorization.
 	- Regularly update and patch dependencies to address security vulnerabilities.
 
-## <font style="color:green"> Implementation plan </font>
+## Implementation plan
 
-#### <font style="color:blue"> Authentication with JWT </font>
+#### Authentication with JWT
 The JWT is signed using a secret key which is saved in a config file, alongside users.
 A route will be created to generate a token that can be used to make API calls.
 ```code
@@ -155,7 +155,7 @@ def login():
     return jsonify({'message': 'Invalid username or password'}), 401
 ```
 
-#### <font style="color:blue"> Data Storage with MongoDB </font>
+#### Data Storage with MongoDB
 To create a NoSQL DB with MongoDB, the following implementation is used:
 ```code
 from pymongo
@@ -172,7 +172,7 @@ collection = db['events']
 
 The events will be stored in the DB following a specific schema so we can optimize certain queries
 
-#### <font style="color:blue"> API Enpoints </font>
+#### API Enpoints
 The Flask framework will be used for this project. The endpoints (event submissions and querying) will be structured as followed:
 ```code
 from flask import Flask
@@ -188,11 +188,11 @@ def get_event():
     # Get event from DB
 ```
 
-## <font style="color:green"> Tests </font>
+## Tests
 What tests will you write? How will you ensure this service/feature works? How will you know when this service/feature stops working?
 // TODO
 
-## <font style="color:green"> Runbook </font>
+## Runbook
 How do you launch this service/feature? How will you monitor it? How does someone else troubleshoot it?
 // TODO
 
@@ -200,6 +200,3 @@ Deployment Considerations: Choose a suitable deployment strategy based on your i
 Containerization: Use Docker to package the microservice along with its dependencies, making it easier to deploy and manage across different environments.
 Orchestration: Utilize container orchestration platforms like Kubernetes to manage the deployment, scaling, and monitoring of the service.
 Load balancing: If the service experiences high traffic, consider using a load balancer to distribute requests across multiple instances of the service for improved performance and availability.
-
-$$\begin{flushleft}$$
-$$\begin{document}$$
