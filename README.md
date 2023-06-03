@@ -1,12 +1,12 @@
 # Audit Log Service
 
-### Purpose
+## <span style="color:green"> Purpose </span>
 The purpose of this service is to accept event data sent by other systems and provide an HTTP endpoint for querying recorded event data by field values.
 
-### Background
+## <span style="color:green"> Background </span>
 This service is developed as part of the Canonical interview process to assess technical skills.
 
-### Requirements of the exersise
+## <span style="color:green"> Requirements of the exersise </span>
 Build an audit log service:
 
 The service will accept event data sent by other systems and provide an HTTP endpoint for querying recorded event data by field values.
@@ -24,8 +24,9 @@ The service should use authentication for the event submission and querying endp
 
 The microservice must be developed in Python or Go and run as an HTTP server. Try to use features available in the language of your choice and avoid extensive usage of frameworks or generated code. Feel free to use any data storage mechanisms that you find appropriate.
 
-### Detailed design
-#### Overall Architecture:
+## <span style="color:green"> Detailed design </span>
+
+#### <span style="color:blue"> Overall Architecture: </span>
 The audit log service will follow a microservices architecture, consisting of the following components:
 - **HTTP Server**: Handles incoming requests and routes them to the appropriate endpoints.
 - **Event Handler**: Responsible for receiving, processing, and storing event data.
@@ -34,37 +35,37 @@ The audit log service will follow a microservices architecture, consisting of th
 - **Event Schema**: Schema that captures the invariant data content along with the variant, event-specific content. The schema will allow flexibility to handle any new event type without modifying the code. Below is the schema design chosen:
 
 ```json
-						{ 
-							"event_id": "unique event identifier", 
-							"event_type": "type of the event", 
-							"timestamp": "timestamp when the event occurred", 
-							"user_id": "identifier of the user who triggered the event", 
-							"event_details": { 
-								"specific_event_field_1": " specific_event_value_1",
-								"specific_event_field_2": " specific_event_value_2"
-								"specific_event_field_3": " specific_event_value_3"
-							}
-						}
+{ 
+	"event_id": "unique event identifier", 
+	"event_type": "type of the event", 
+	"timestamp": "timestamp when the event occurred", 
+	"user_id": "identifier of the user who triggered the event", 
+	"event_details": { 
+		"specific_event_field_1": " specific_event_value_1",
+		"specific_event_field_2": " specific_event_value_2"
+		"specific_event_field_3": " specific_event_value_3"
+	}
+}
 ```
 
-#### Authentication
+#### <span style="color:blue"> Authentication </span>
 To secure the endpoints, we'll implement authentication using tokens. Each request to the service's endpoints should include an authentication token in the header. The token can be generated using the user authentication system JWT. I chose JWT over OAuth because we don't need to maintain the session state.
 
-#### Event Submission
+#### <span style="color:blue"> Event Submission </span>
 The service will expose an endpoint to receive event data from other systems. The endpoint will support HTTP POST requests. Here are the steps for event submission:
 - The request will contain the event data in JSON format.
 - The authentication middleware will validate the user's authentication token.
 - The event handler will parse the JSON payload and validate the event against the event schema.
 - The event will be stored in the database for later retrieval.
 
-#### Event Querying
+#### <span style="color:blue"> Event Querying </span>
 The service will provide an endpoint to query recorded event data based on field values. The endpoint will support HTTP GET requests with query parameters. Here are the steps for event querying:
 - The request will include query parameters specifying the field values to search for.
 - The authentication middleware will validate the user's authentication token.
 - The event handler will retrieve events from the database based on the provided query parameters.
 - The matching events will be returned as a response in JSON format.
 
-#### Data Storage
+#### <span style="color:blue"> Data Storage </span>
 For this specific service, the important requirements to take into considerations are:
 - The list of event types is open-ended, which means the structure of each event may vary.
 - The service is write-intensive.
@@ -72,43 +73,44 @@ For this specific service, the important requirements to take into consideration
 The first requirement indicates that a relational database might not be optimal. Both a NoSQL database or a Distributed File System architecture could be used, although I prefer a NoSQL database because I can perform validation and querying more easily without requiring additional tools or framework. 
 Hence, MongoDB will be used as the NoSQL database.
 
-#### Error Handling and Loggin
+#### <span style="color:blue"> Error Handling and Loggin </span>
 The system needs to include robust error handling mechanisms to handle exceptions, validate input data, and ensure continuity of the service. Proper logging will be implemented to track errors, debug information, and monitor the service's behavior. Ironically, we will log information regarding events occuring when the API is used so we can troubleshoot system errors.
 
-#### Scaling and Performance
+#### <span style="color:blue"> Scaling and Performance </span>
 To handle the write-intensive nature of the service, the following aspects are considered:
 - Using asynchronous processing: The event submission endpoint is decoupled from the actual event processing and storage. Events are processed and stored asynchronously to handle high loads without blocking the HTTP server.
 - Employing message queues: A message queue system (RabbitMQ) is integrated to handle event processing and decouple it from the HTTP server. This allows for better scalability and fault tolerance.
 - Optimizing the database: Appropriate indexing, sharding, or partitioning strategies are used to ensure efficient storage and retrieval of events.
 
-#### API Documentation
-##### Authentication
+#### <span style="color:blue"> API Documentation </span>
+
+##### <span style="color:orange"> Authentication </span>
 To use the API, the users first need to obtain a JWT token:
 ```code
 curl -X POST -H "Content-Type: application/json" -d '{"username":"<USERNAME>", "password":"<PASSWORD>"}' http://localhost:5000/login
 ```
-##### Event Submission 
+##### <span style="color:orange"> Event Submission </span>
 To submit a new event, the users can use this command:
 ```code
 curl -X POST -H "Content-Type: application/json" -H "Authorization: <JWT TOKEN>" -d '{"key1":"value1", "key2":"value2"}' http://localhost:5000/events
 ```
 
-##### Event Querying
+##### <span style="color:orange"> Event Querying </span>
 To get all events from the db, the users can use this command:
 ```code
 curl -X GET -H "Authorization: <jwt-token>" http://localhost:5000/events
 ```
 
-##### Expected Request formats
+##### <span style="color:orange"> Expected Request formats </span>
 // TODO
-##### Expected Response formats
+##### <span style="color:orange"> Expected Response formats </span>
 // TODO
-##### Authentication Requirements
+##### <span style="color:orange"> Authentication Requirements </span>
 // TODO
-##### Examples of usage
+##### <span style="color:orange"> Examples of usage </span>
 // TODO
 
-#### Testing
+#### <span style="color:blue"> Testing </span>
 Comprehensive unit tests and integration tests will ensure the correctness and reliability of the service. 
 The pytest testing framework will automate the testing process.
 Monitoring and Metrics: 
@@ -120,9 +122,9 @@ Security Considerations:
 	- Follow the principle of least privilege for authentication and authorization.
 	- Regularly update and patch dependencies to address security vulnerabilities.
 
-### Implementation plan
+## <span style="color:green"> Implementation plan </span>
 
-#### Authentication with JWT
+#### <span style="color:blue"> Authentication with JWT </span>
 The JWT is signed using a secret key which is saved in a config file, alongside users.
 A route will be created to generate a token that can be used to make API calls.
 ```code
@@ -151,7 +153,7 @@ def login():
     return jsonify({'message': 'Invalid username or password'}), 401
 ```
 
-#### Data Storage with MongoDB
+#### <span style="color:blue"> Data Storage with MongoDB </span>
 To create a NoSQL DB with MongoDB, the following implementation is used:
 ```code
 from pymongo
@@ -168,7 +170,7 @@ collection = db['events']
 
 The events will be stored in the DB following a specific schema so we can optimize certain queries
 
-#### API Enpoints
+#### <span style="color:blue"> API Enpoints </span>
 The Flask framework will be used for this project. The endpoints (event submissions and querying) will be structured as followed:
 ```code
 from flask import Flask
@@ -184,11 +186,11 @@ def get_event():
     # Get event from DB
 ```
 
-### Tests
+## <span style="color:green"> Tests </span>
 What tests will you write? How will you ensure this service/feature works? How will you know when this service/feature stops working?
 // TODO
 
-### Runbook
+## <span style="color:green"> Runbook </span>
 How do you launch this service/feature? How will you monitor it? How does someone else troubleshoot it?
 // TODO
 
