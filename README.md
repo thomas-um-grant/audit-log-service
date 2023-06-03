@@ -1,4 +1,4 @@
-$$\begin{readme}$$
+$$\begin{document}$$
 $$\begin{flushleft}$$
 # Audit Log Service
 
@@ -202,4 +202,4 @@ Orchestration: Utilize container orchestration platforms like Kubernetes to mana
 Load balancing: If the service experiences high traffic, consider using a load balancer to distribute requests across multiple instances of the service for improved performance and availability.
 
 $$\begin{flushleft}$$
-$$\end{readme}$$
+$$\begin{document}$$
