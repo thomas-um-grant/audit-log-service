@@ -1,5 +1,3 @@
-$$\begin{document}$$
-$$\begin{flushleft}$$
 # Audit Log Service
 
 ## Purpose
