@@ -27,12 +27,16 @@ The microservice must be developed in Python or Go and run as an HTTP server. Tr
 ## Detailed design
 
 #### Overall Architecture:
+
+![Audit log service diagram](doc/Audit-Log-Service_Diagram.png)
+
 The audit log service will follow a microservices architecture, consisting of the following components:
-- **HTTP Server**: Handles incoming requests and routes them to the appropriate endpoints.
-- **Event Handler**: Responsible for receiving, processing, and storing event data.
-- **Data Storage**: Stores the recorded events for later retrieval.
-- **Authentication Middleware**: Validates the user's authentication credentials before processing requests.
-- **Event Schema**: Schema that captures the invariant data content along with the variant, event-specific content. The schema will allow flexibility to handle any new event type without modifying the code. Below is the schema design chosen:
+- **REST API**: Endpoints Handling incoming requests, authentication, and message validation.
+- **Message Broker**: Message queue where the incoming payloads to be saved are queued.
+- **Worker**: Task saving the queued messages into the database.
+- **DB**: Database where the events are stored.
+
+**Event Schema**: Schema that captures the invariant data content along with the variant, event-specific content. The schema will allow flexibility to handle any new event type without modifying the code. Below is the schema design chosen:
 
 ```json
 { 
@@ -49,20 +53,20 @@ The audit log service will follow a microservices architecture, consisting of th
 ```
 
 #### Authentication
-To secure the endpoints, we'll implement authentication using tokens. Each request to the service's endpoints should include an authentication token in the header. The token can be generated using the user authentication system JWT. I chose JWT over OAuth because we don't need to maintain the session state.
+To secure the endpoints, the authentication is implemented using tokens. Each request to the service's endpoints includes an authentication token in the header. The token is generated using the user authentication system JWT. I chose JWT over OAuth because there is no need to maintain the session state.
 
 #### Event Submission
-The service will expose an endpoint to receive event data from other systems. The endpoint will support HTTP POST requests. Here are the steps for event submission:
-- The request will contain the event data in JSON format.
-- The authentication middleware will validate the user's authentication token.
-- The event handler will parse the JSON payload and validate the event against the event schema.
-- The event will be stored in the database for later retrieval.
+The service exposes an endpoint to receive event data from other systems. The endpoint supports HTTP POST requests. Here are the steps for event submission:
+- The request contains the event data in JSON format.
+- The authentication middleware validates the user's authentication token.
+- The JSON payload is parsed and validated against the event schema.
+- The event is stored in the database for later retrieval.
 
 #### Event Querying
-The service will provide an endpoint to query recorded event data based on field values. The endpoint will support HTTP GET requests with query parameters. Here are the steps for event querying:
-- The request will include query parameters specifying the field values to search for.
-- The authentication middleware will validate the user's authentication token.
-- The event handler will retrieve events from the database based on the provided query parameters.
+The service provides an endpoint to query recorded event data based on field values. The endpoint supports HTTP GET requests with query parameters. Here are the steps for event querying:
+- The request includes query parameters specifying the field values to search for.
+- The authentication middleware validates the user's authentication token.
+- The events are retrieved from the database based on the provided query parameters.
 - The matching events will be returned as a response in JSON format.
 
 #### Data Storage
@@ -71,16 +75,16 @@ For this specific service, the important requirements to take into consideration
 - The service is write-intensive.
 
 The first requirement indicates that a relational database might not be optimal. Both a NoSQL database or a Distributed File System architecture could be used, although I prefer a NoSQL database because I can perform validation and querying more easily without requiring additional tools or framework. 
-Hence, MongoDB will be used as the NoSQL database.
+Hence, MongoDB is used as the NoSQL database.
 
-#### Error Handling and Loggin
-The system needs to include robust error handling mechanisms to handle exceptions, validate input data, and ensure continuity of the service. Proper logging will be implemented to track errors, debug information, and monitor the service's behavior. Ironically, we will log information regarding events occuring when the API is used so we can troubleshoot system errors.
+#### Error Handling and Loggin **TODO**
+The system needs to include robust error handling mechanisms to handle exceptions, validate input data, and ensure continuity of the service. Proper logging is implemented to track errors, debug information, and monitor the service's behavior. Ironically, we log information regarding events occuring when the API is used so we can troubleshoot system errors.
 
 #### Scaling and Performance
 To handle the write-intensive nature of the service, the following aspects are considered:
 - Using asynchronous processing: The event submission endpoint is decoupled from the actual event processing and storage. Events are processed and stored asynchronously to handle high loads without blocking the HTTP server.
 - Employing message queues: A message queue system (RabbitMQ) is integrated to handle event processing and decouple it from the HTTP server. This allows for better scalability and fault tolerance.
-- Optimizing the database: Appropriate indexing, sharding, or partitioning strategies are used to ensure efficient storage and retrieval of events.
+- **TODO** Optimizing the database: Appropriate indexing, sharding, or partitioning strategies are used to ensure efficient storage and retrieval of events.
 
 #### API Documentation
 
@@ -94,27 +98,25 @@ To submit a new event, the users can use this command:
 ```console
 curl -X POST -H "Content-Type: application/json" -H "Authorization: <JWT TOKEN>" -d '{"key1":"value1", "key2":"value2"}' http://localhost:5000/events
 ```
-
 ##### Event Querying
 To get all events from the db, the users can use this command:
 ```console
 curl -X GET -H "Authorization: <jwt-token>" http://localhost:5000/events
 ```
-
 ##### Expected Request formats
-// TODO
+**TODO**
 ##### Expected Response formats
-// TODO
+**TODO**
 ##### Authentication Requirements
-// TODO
+**TODO**
 ##### Examples of usage
-// TODO
+**TODO**
 
-#### Testing
-Comprehensive unit tests and integration tests will ensure the correctness and reliability of the service. 
-The pytest testing framework will automate the testing process.
+#### Testing **TODO**
+Comprehensive unit tests and integration tests ensure the correctness and reliability of the service. 
+The pytest testing framework automates the testing process.
 Monitoring and Metrics: 
-- Monitoring and metrics collection will be implemented to gain insights into the service's performance and health. We will integrate Prometheus to monitor metrics such as request latency, error rates, and system resource usage.
+- Monitoring and metrics collection are implemented to gain insights into the service's performance and health. Prometheus is integrated to monitor metrics such as request latency, error rates, and system resource usage.
 Security Considerations: 
 - When designing the service, security best practices must be considered:
 	- Use secure protocols (HTTPS) for communication.
@@ -126,7 +128,7 @@ Security Considerations:
 
 #### Authentication with JWT
 The JWT is signed using a secret key which is saved in a config file, alongside users.
-A route will be created to generate a token that can be used to make API calls.
+A route is created to generate a token that can be used to make API calls.
 ```python
 import jwt
 
@@ -152,7 +154,25 @@ def login():
 
     return jsonify({'message': 'Invalid username or password'}), 401
 ```
+#### API Enpoints
+The Flask framework is used for this project. The endpoints (event submissions and querying) are structured as followed:
+```python
+from flask import Flask
 
+app = Flask(__name__)
+
+@app.route("/events, methods=[POST]")
+def post_event():
+    # Add event to DB
+	
+@app.route("/events, methods=[GET]")
+def get_event():
+    # Get event from DB
+```
+#### Message Broker with RabbitMQ
+**TODO**
+#### Worker with Celery
+**TODO**
 #### Data Storage with MongoDB
 To create a NoSQL DB with MongoDB, the following implementation is used:
 ```python
@@ -168,33 +188,10 @@ db = client['event_db']
 collection = db['events']
 ```
 
-The events will be stored in the DB following a specific schema so we can optimize certain queries
+The events are stored in the DB following a specific schema so certain queries can be optimized.
 
-#### API Enpoints
-The Flask framework will be used for this project. The endpoints (event submissions and querying) will be structured as followed:
-```python
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route("/events, methods=[POST]")
-def post_event():
-    # Add event to DB
-	
-@app.route("/events, methods=[GET]")
-def get_event():
-    # Get event from DB
-```
-
-## Tests
-What tests will you write? How will you ensure this service/feature works? How will you know when this service/feature stops working?
-// TODO
+## Tests **TODO**
+What tests will I write? How will I ensure this service/feature works? How will I know when this service/feature stops working?
 
 ## Runbook
-How do you launch this service/feature? How will you monitor it? How does someone else troubleshoot it?
-// TODO
-
-Deployment Considerations: Choose a suitable deployment strategy based on your infrastructure and requirements:
-Containerization: Use Docker to package the microservice along with its dependencies, making it easier to deploy and manage across different environments.
-Orchestration: Utilize container orchestration platforms like Kubernetes to manage the deployment, scaling, and monitoring of the service.
-Load balancing: If the service experiences high traffic, consider using a load balancer to distribute requests across multiple instances of the service for improved performance and availability.
+How do I launch this service/feature? How will I monitor it? How does someone else troubleshoot it?
