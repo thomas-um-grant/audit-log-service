@@ -1,0 +1,63 @@
+version: '3'
+services:
+# RabbitMQ is the message broker in which the messages received at the api endpoint are queued
+  rabbit:
+    image: rabbitmq # Use the official rabbitmq image found on dockerhub
+    hostname: rabbit # Set the hostname to be used by other containers
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin # Set the admin username
+      - RABBITMQ_DEFAULT_PASS=pass # Set the admin password
+    networks:
+      - audit-log-network # Add to the audit-log-network shared with other containers
+    restart: unless-stopped # Always restarts the container, except when the container is stopped (manually or otherwise).
+  
+  # MongoDB is the database where the messages (events) will be stored
+  db:
+    image: mongo # Use the official mongodb image found on dockerhub
+    hostname: mongo # Set the hostname to be used by other containers
+    ports:
+      - 27017:27017 # Forward the host port to the docker image port to be used, keeping the default one here
+    networks:
+      - audit-log-network # Add to the audit-log-network shared with other containers
+    restart: unless-stopped # Always restarts the container, except when the container is stopped (manually or otherwise).
+
+  # The API use the Flask framework to receive and manage GET and POST requests
+  api:
+    build:
+      context: ./api # The API dockerfile is located in the /api folder
+      dockerfile: Dockerfile # The dockerfile is named Dockerfile
+    command: ./scripts/run_api.sh # Runs this script to start the api
+    volumes:
+      - .:/app # TODO:
+    ports:
+      - 5000:5000 # Forward the host port to the docker image port to be used, keeping the same one here
+    depends_on: # depends_on starts and stops services in dependency order.
+      - rabbit # depends on rabbit, so will be started after rabbit
+      - db # depends on db, so will be started after db
+    networks:
+      - audit-log-network # Add to the audit-log-network shared with other containers
+    environment:
+      - RABBITMQ_HOST=rabbit # Set the environment variable hostname to connect to rabbitmq
+      - MONGODB_HOST=db # Set the environment variable hostname to connect to mongodb
+    restart: unless-stopped # Always restarts the container, except when the container is stopped (manually or otherwise).
+
+  worker:
+    build:
+      context: ./worker # The Worker dockerfile is located in the /worker folder
+      dockerfile: Dockerfile # The dockerfile is named Dockerfile
+    command: ./scripts/run_worker.sh # Runs this script to start the worker
+    volumes:
+      - .:/app # TODO:
+    depends_on: # depends_on starts and stops services in dependency order.
+      - rabbit # depends on rabbit, so will be started after rabbit
+      - db # depends on db, so will be started after db
+    networks:
+      - audit-log-network # Add to the audit-log-network shared with other containers
+    environment:
+      - RABBITMQ_HOST=rabbit # Set the environment variable hostname to connect to rabbitmq
+      - MONGODB_HOST=db # Set the environment variable hostname to connect to mongodb
+    restart: unless-stopped # Always restarts the container, except when the container is stopped (manually or otherwise).
+
+networks:
+  audit-log-network: # Creating the network called audit-log-network
+    driver: bridge # Will act as a bridge in between containers
