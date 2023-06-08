@@ -1,7 +1,10 @@
 FROM python:3
-
-COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
+# keep everything in a new folder: 'worker'
+WORKDIR /worker
+# install python dependencies
+COPY ./requirements.txt /worker
+RUN pip install -r requirements.txt
+# Copy the app files to the container
+COPY ./src /worker
+# start the service
+CMD celery -A tasks worker --loglevel=info
