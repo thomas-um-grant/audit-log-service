@@ -27,7 +27,7 @@ def ping_pong():
 # connect to RabbitMQ message broker
 def create_rabbitmq_connection():
     credentials = pika.PlainCredentials('rabbit_user', 'rabbit_pass')
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit', credentials=credentials))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbit',port=5672, credentials=credentials))
     channel = connection.channel()
     channel.queue_declare(queue='audit_log_queue')
     return connection, channel
@@ -50,10 +50,10 @@ def create_rabbitmq_connection():
 def push_message():
     try: #TODO: Validation
         data = request.get_json()
-        connection, channel = create_rabbitmq_connection()
-        channel.basic_publish(exchange='', routing_key='audit_log_queue', body=data)
-        connection.close()
-        return "Event submitted"
+        # connection, channel = create_rabbitmq_connection()
+        # channel.basic_publish(exchange='', routing_key='audit_log_queue', body=data)
+        # connection.close()
+        return f"Event submitted: {jsonify(data)}"
     except: #TODO: Handle different errors
         return not_found()
 
