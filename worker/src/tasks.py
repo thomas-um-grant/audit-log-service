@@ -1,36 +1,35 @@
 # Libraries
 import os
-import pika
+import json
 from celery import Celery
 from pymongo import MongoClient
+from celery.utils.log import get_task_logger
+
+# setup logging
+logger = get_task_logger(__name__)
 
 # Initialize a Celery instance named 'worker' and configures it to use RabbitMQ as a message broker.
-celery = Celery("tasks", broker="amqp://rabbit_user:rabbit_pass@rabbit//")
-
-# Retrieve messages from RabbitMQ queue
-@celery.task
-def consume_message():
-    # Establish connection to RabbitMQ
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
-    # Declare the message queue
-    channel.queue_declare(queue='audit_log_queue')
-    # Start consuming messages from the queue
-    channel.basic_consume(queue='audit_log_queue', on_message_callback=process_callback, auto_ack=True)
-    channel.start_consuming()
-
-def process_callback(body):
-    message = eval(body.decode())
-    process_message.delay(message)
+worker = Celery("tasks", broker="amqp://rabbit_user:rabbit_pass@rabbit:5672")
 
 # Store messages to mongodb database
-@celery.task
-def process_message(message):
+@worker.task()
+def store_event(event):
+    data = json.loads(event)
+    logger.info(f'Read message: {data}')
+    logger.info('Connecting to DB...')
     # Establish connection to MongoDB
     mongo_database_url = os.environ.get('MONGODB_HOST')
     client = MongoClient(mongo_database_url)
+    logger.info('Connected to DB successfully')
     db = client['audit_log_db']
     collection = db['events']
+    logger.info(f'Inserting message: {data}')
     # Store the message in MongoDB
-    collection.insert_one(message) #TODO: validation with schema: https://www.mongodb.com/docs/manual/core/schema-validation/specify-json-schema/
+    post = {
+        "_id": 0,
+        "name": "test",
+        "event_details": data
+    }
+    collection.insert_one(post) #TODO: validation with schema: https://www.mongodb.com/docs/manual/core/schema-validation/specify-json-schema/
     client.close()
+    logger.info(f'Operation completed successsfully')
