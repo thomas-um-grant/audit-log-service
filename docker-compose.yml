@@ -37,6 +37,9 @@ services:
       - rabbit # depends on rabbit, so will be started after rabbit
       - db # depends on db, so will be started after db
     environment:
+      - SECRET_KEY=9x2-NtyZJJ6EioDf
+      - CANONICAL_USER=canonical_user
+      - CANONICAL_PASS=canonical_pass
       - RABBITMQ_HOST=amqp://rabbit_user:rabbit_pass@rabbit:5672 # Set the environment variable hostname to connect to rabbitmq
       - MONGODB_HOST=mongodb://mongo_user:mongo_pass@db:27017 # Set the environment variable hostname to connect to mongodb
     # volumes:
@@ -61,12 +64,6 @@ services:
 
 volumes:
   mongodb: # The volume that will be created and synced with the host machine
-
-# secrets:
-#    rabbit_secrets:
-#      file: db_password.txt
-#    db_root_password:
-#      file: db_root_password.txt
 
 # Note: No needs to specify the network for each container to communicate, Docker creates a default one "myapp_default",
 #       and the name of each container can be used as hostnames: https://docs.docker.com/compose/networking/

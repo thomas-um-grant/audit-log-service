@@ -1,0 +1,16 @@
+{
+    "title": "event-schema",
+    "description": "Schema of post event request body",
+    "type": "object",
+    "properties": {
+        "event_type": {
+            "type": "string"
+        },
+        "event_details": {
+                "type": "object",
+                "additionalProperties": true
+        }
+    },
+    "additionalProperties": false,
+    "required": ["event_type", "event_details"]
+}
