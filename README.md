@@ -28,11 +28,15 @@ The microservice must be developed in Python or Go and run as an HTTP server. Tr
 
 #### Pre-req
 If you are on a Windows machine, it's time to download WSL so you can use a Unix-like terminal:
+
 WSL: https://learn.microsoft.com/en-us/windows/wsl/install
 
 You need Git to download the project and Docker to build and run it, ensure to have these installed on your machine.
+
 I recommend Docker Desktop if you are not familiar with Docker yet, the interface is clean and make it easier to play around with the service.
+
 Download Git: https://git-scm.com/
+
 Download Docker: https://www.docker.com/products/docker-desktop/
 
 #### Download the project locally
@@ -52,6 +56,7 @@ docker-compose up -d
 -d will have it run in the background to free your terminal, although you can ommit this part if you want to see what's happening live.
 This command will build all the images / containers so it may take some time the first time around based on your internet and machine.
 Once started, you can now access the service.
+
 To verify the project is running, try to run this command:
 ```console
 curl --request GET --url http://localhost:5000/ping
@@ -65,12 +70,14 @@ curl --request POST --url http://localhost:5000/login --header "Content-Type: ap
 ```
 This command will return a Bearer token if you are using the right username and password.
 Try to change the credentails, or fields that you are sending to see errors handled.
+
 To verify that your Bearer token is valid, you can use the endpoint \auth:
 ```console
 curl --request GET --url http://localhost:5000/auth --header "Authorization: Bearer: <BearerToken>"
 ```
 Replace the <'BearerToken'> parameter with the token you obtained from the previous command.
 If you receive a "JWT is valid" response, then you are all set!
+
 /!\ The token is set to expire 5 min from the time it was generated for security purpose.
 
 An error message will be returned if the token is missing, invalid, or expired.
@@ -85,7 +92,7 @@ A schema is in place to receive new events:
 { 
 	// A string to name the event
 	"event_type": "The name of the event",
-	// Any dynamic object you wish, it can be complex object such as the example below
+	// Any dynamic object you wish, it can a be complex object such as the example below
 	"event_details": {
 		"message" : "Thomas created an acount.",
 		"interests" : ["sports", "cooking", "movies"],
