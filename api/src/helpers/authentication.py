@@ -51,15 +51,19 @@ def authenticate(app):
                     algorithm="HS256"
                 )
                 # Returns a Bearer Token
+                app.logger.info(f"Login successful for user: {infos['username']}")
                 return jsonify({'token': token})
             else:
+                app.logger.info(f"Login failed for user: {infos['username']}, error: Unauthorized: Invalid credentials")
                 return make_response('Unauthorized: Invalid credentials', 403)
         # Handle exceptions
         except jsonschema.exceptions.ValidationError as e:
             error_message = e.message
+            app.logger.info(f"Login failed for user: {infos['username']}, error: {error_message}")
             return make_response(error_message, 400)
         except jsonschema.exceptions.SchemaError as e:
             error_message = e.message
+            app.logger.info(f"Login failed for user: {infos['username']}, error: {error_message}")
             return make_response(error_message, 500)
 
 # Decorator to enforce token for certain endpoints
@@ -86,6 +90,7 @@ def token_required(app):
                     token = auth_header[7:].strip()
 
             if not token:
+                app.logger.info(f"Access denied: error: Token is missing")
                 return make_response('Unauthorized: Token is missing', 403)
             try:
                 payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
@@ -99,10 +104,13 @@ def token_required(app):
                 
                 # Pass the user ID as an argument to the endpoint function
                 kwargs['user_id'] = payload['user']
+                app.logger.info(f"Access granted for user : {kwargs['user_id']}")
 
             except ExpiredSignatureError:
+                app.logger.info(f"Access denied: error: Unauthorized: Token expired")
                 return make_response('Unauthorized: Token expired', 403)
             except:
+                app.logger.info(f"Access denied, error: Unauthorized: Invalid Token")
                 return make_response('Unauthorized: Invalid Token', 403)
             
             return func(*args, **kwargs)

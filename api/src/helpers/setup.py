@@ -49,4 +49,3 @@ def endpoints(app):
 # Setup the errors
 def errors(app):
     handle_not_found(app)
-    handle_server_error(app)

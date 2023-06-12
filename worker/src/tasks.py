@@ -29,7 +29,7 @@ celery = Celery("tasks", broker=os.environ.get('RABBITMQ_HOST'))
 def store_event(event):
     # Reading incoming message
     data = json.loads(event)
-    logger.info(f'Read message: {data}')
+    logger.info(f'Read incoming message: {data}')
     # Connect to MongoDB
     mongo_database_url = os.environ.get('MONGODB_HOST')
     client = MongoClient(mongo_database_url)
@@ -37,7 +37,7 @@ def store_event(event):
     db = client['audit_log_db']
     collection = db['events']
     # Store the message in MongoDB
-    logger.info(f'Inserting message: {data}')
     collection.insert_one(data)
+    logger.info(f'Inserted message: {data}')
     client.close()
-    logger.info(f'Operation completed successsfully')
+    logger.info(f'Worker operation completed successsfully')

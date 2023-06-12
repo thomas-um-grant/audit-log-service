@@ -55,16 +55,19 @@ def post_event(app, celery_client):
             }
             resp = jsonify(message)
             resp.status_code = 200
-
+            app.logger.info(f"POST event from user: {user_id}. Event sent to worker. Event: {message}")
             return resp
 
         except jsonschema.exceptions.ValidationError as e:
             error_message = e.message
+            app.logger.info(f"POST event error from user: {user_id}. The data sent did not match the event schema")
             return make_response(error_message, 400)
         except jsonschema.exceptions.SchemaError as e:
             error_message = e.message
+            app.logger.info(f"POST event error from user: {user_id}. The event schema used is invalid")
             return make_response(error_message, 500)
         except Exception as e: #TODO: Handle different errors
+            app.logger.info(f"POST event error from user: {user_id}. error: {e}")
             return jsonify({
                 "error": f"{e}"
             })
@@ -104,5 +107,5 @@ def get_event(app, mongo_client):
         else:
             for item in data:
                 result.append(item)
-                
+        app.logger.info(f"GET event from user: {user_id}. args: {args.keys()}")
         return jsonify(result)

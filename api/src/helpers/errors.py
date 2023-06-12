@@ -19,7 +19,4 @@ def handle_not_found(app):
 
         return resp
 
-# Handle 5XX errors thrown
-def handle_server_error(app):
-    #TODO
-    pass
+# TODO: Handle 5XX errors thrown
