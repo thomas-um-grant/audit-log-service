@@ -59,21 +59,21 @@ Once started, you can now access the service.
 
 To verify the project is running, try to run this command:
 ```console
-curl --request GET --url http://localhost:5000/ping
+curl --request GET --url "http://localhost:5000/ping"
 ```
 If it returns "pong!", you are all set!
 
 #### Obtain a token
 To use the API, the users first need to obtain a JWT token:
 ```console
-curl --request POST --url http://localhost:5000/login --header "Content-Type: application/json" -d "{\"username\":\"canonical_user\", \"password\":\"canonical_pass\"}"
+curl --request POST --url "http://localhost:5000/login" --header "Content-Type: application/json" -d "{\"username\":\"canonical_user\", \"password\":\"canonical_pass\"}"
 ```
 This command will return a Bearer token if you are using the right username and password.
 Try to change the credentails, or fields that you are sending to see errors handled.
 
 To verify that your Bearer token is valid, you can use the endpoint \auth:
 ```console
-curl --request GET --url http://localhost:5000/auth --header "Authorization: Bearer: <BearerToken>"
+curl --request GET --url "http://localhost:5000/auth" --header "Authorization: Bearer: <BearerToken>"
 ```
 Replace the <'BearerToken'> parameter with the token you obtained from the previous command.
 If you receive a "JWT is valid" response, then you are all set!
@@ -85,7 +85,7 @@ An error message will be returned if the token is missing, invalid, or expired.
 #### Post an event
 To submit a new event, the users can use this command:
 ```console
-curl --request POST --url http://localhost:5000/event --header "Authorization: Bearer: <BearerToken>" --header "Content-Type: application/json" --data "{ \"event_type\": \"account creation\", \"event_details\": {\"message\": \"Thomas created an account.\", \"Interest\": [\"Sports\", \"Cooking\", \"Movies\"], \"location\": { \"city\": \"Seattle\", \"country\": \"USA\" }}}
+curl --request POST --url "http://localhost:5000/event" --header "Authorization: Bearer: <BearerToken>" --header "Content-Type: application/json" --data "{ \"event_type\": \"account creation\", \"event_details\": {\"message\": \"Thomas created an account.\", \"Interest\": [\"Sports\", \"Cooking\", \"Movies\"], \"location\": { \"city\": \"Seattle\", \"country\": \"USA\" }}}"
 ```
 A schema is in place to receive new events:
 ```json
@@ -108,7 +108,7 @@ An error will be returned if the data object sent is invalid, otherwise, it will
 #### Retrieve events
 To get all events from the db, the users can use this command:
 ```console
-curl --request GET --url http://localhost:5000/event --header "Authorization: Bearer: <BearerToken>"
+curl --request GET --url "http://localhost:5000/event" --header "Authorization: Bearer: <BearerToken>"
 ```
 This command will return all the events stored in the db. If you would like to query only certain events, you can add parameters:
 - _id : The id of an event, this will return a single event. The id is constructed as followed: <'username'>-<'event_type'>-<'timestamp'>.
